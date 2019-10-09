@@ -15,7 +15,7 @@ import firebase_user_auth
 app = Flask(__name__)
 app.secret_key = b'\xbd\x93K)\xd3\xeeE_\xfb0\xab\xa5\xa9\x1a\t'
 
-# add user credentials
+# add your credentials
 WEB_API_KEY = "###"
 SERVER_CONFIG = {
     #
