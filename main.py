@@ -1,3 +1,4 @@
+# standard imports
 import requests
 import datetime
 
@@ -8,11 +9,13 @@ from flask import Flask, render_template, request, url_for, redirect, flash, ses
 from firebase_admin import credentials, firestore, auth
 import firebase_admin
 
+# import custom module
 import firebase_user_auth
 
 app = Flask(__name__)
 app.secret_key = b'\xbd\x93K)\xd3\xeeE_\xfb0\xab\xa5\xa9\x1a\t'
 
+# add user credentials
 WEB_API_KEY = "###"
 SERVER_CONFIG = {
     #
@@ -48,7 +51,6 @@ def index_page():
             flash_msg = "Your session is expired!"
             flash(flash_msg)
             return redirect(url_for("user_login"))   
-
     flash_msg = "Please Log In"
     flash(flash_msg)
     return redirect(url_for("user_login"))    
@@ -82,7 +84,6 @@ def user_login():
     # return login page for GET request
     return render_template("login.html")
     
-
 @app.route('/register', methods=["GET", "POST"])
 def user_register():
     if (request.method == "POST"):
@@ -123,8 +124,6 @@ def user_register():
 def user_logout():
     session.pop('session_id', None)
     return redirect(url_for('index_page'))
-
-
 
 if (__name__ == "__main__"):
     app.run(debug=True)
