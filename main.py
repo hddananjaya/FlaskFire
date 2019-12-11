@@ -11,9 +11,6 @@ import firebase_user_auth
 # realtime communication
 from flask_socketio import SocketIO, emit, send
 
-# trying to implement session variable access
-from flask import stream_with_context, Response
-
 import requests
 import datetime
 import random
@@ -22,11 +19,9 @@ app = Flask(__name__)
 app.secret_key = b'\xbd\x93K)\xd3\xeeE_\xfb0\xa6\xab\xa5\xa9\x1a\t'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# add your config
 WEB_API_KEY = ""
 SERVER_CONFIG = {
 
-}
 
 # firebase-admin init
 cred = credentials.Certificate(SERVER_CONFIG)
@@ -42,22 +37,13 @@ chats_coll = db.collection(u"notes")
 # firebase user auth init
 user_auth = firebase_user_auth.initialize(WEB_API_KEY)
 
-# this might be stupid. i dont know
-# this is how i keep track of all using chats
-#chats = {}
-
-# after backup
-# lets try to implement using sessions baby.
-
-#return Response(stream_with_context(get_user_saved_tracks(session['token'], session['spotify_id'], session),
-#               mimetype='text/event-stream')
-
-def testx():
-    session["chats"][doc_snapshot[0].id] = True
+# keeping already watching list
+chats_watch_list = {}
 
 def _on_snapshot_callback(doc_snapshot, changes, readtime):
-    #session["chats"][doc_snapshot[0].id] = True
-    return Response(testx(), mimetype="text/event-stream")
+    # need to send requried event to required people
+    chatid = doc_snapshot[0].id
+    socketio.emit(chatid, {'doc_updated': True})
 
 @app.route('/')
 def index_page():
@@ -65,12 +51,24 @@ def index_page():
     if ("session_id" in session):
         try:
             # verify session_id
-            decoded_clamis = auth.verify_session_cookie(session["session_id"])
-            # decoded_token = auth.verify_id_token(session["id_token"])
-            flash_msg = "Welcome!, " + decoded_clamis['email']          
-            flash(flash_msg)
+            decoded_clamis = auth.verify_session_cookie(session["session_id"])   
+            #flash(decoded_clamis)
             session['email_addr'] = decoded_clamis['email']
-            return render_template("index.html")
+            session['user_id'] = decoded_clamis['user_id']
+
+            #
+            # Trying to implement users connected chats list
+            #
+            user_doc = users_coll.document(decoded_clamis['user_id'])
+            user_details = user_doc.get().to_dict()
+            connected_chats = user_details.get("connected_chats")
+            #flash(decoded_clamis)
+
+            connected_chats_list = []
+            for i in connected_chats:
+                connected_chats_list.append(i.get().to_dict())
+            
+            return render_template("index.html", user_email=session["email_addr"], chats_list=connected_chats_list)
         except Exception as e:
             # if unable to verify session_id for any reason
             # maybe invalid or expired, redirect to login
@@ -98,6 +96,7 @@ def user_login():
             session['session_id'] = user_session_cookie
             # if username passwd valid then redirect to index page
             return redirect(url_for('index_page'))
+
         except requests.HTTPError as e:
             if ("EMAIL_NOT_FOUND" in str(e)):
                 flash_msg = "Please register before login"
@@ -130,7 +129,8 @@ def user_register():
 
             # add user document to users collection
             users_coll.add({"name": user_name,
-                            "email": user_email
+                            "email": user_email,
+                            "connected_chats": []
             }, user_recode.get('localId'))
             
             # if registration is valid then redirect to index page
@@ -150,46 +150,44 @@ def user_register():
 
 @app.route('/logout')
 def user_logout():
-    session.pop('session_id', None)
+    #session.pop('session_id', None)
+    session.clear()
     return redirect(url_for('index_page'))
 
 @app.route("/chat/<chatid>")
 def user_chat(chatid):
-    """
-    ToDo:
-        * implement chat system somehow
-    """
+
     chat_doc = chats_coll.document(chatid)
     chat_details = chat_doc.get().to_dict()
-    #return (jsonify(chat_details))
-	
-	# if user is not already joined then append him
+
+	# if user is not already joined then append him to users list
     if (session["email_addr"] not in chat_details.get("users")):
         chat_details.get("users").append(session["email_addr"])
         chat_doc.update(chat_details, option=None)
 
-    if (chatid not in session["chats"]):
-        chat_watch = chat_doc.on_snapshot(_on_snapshot_callback)
-        session["chat"][chatid] = False		
-	
-    # Watch the chat document if it is not waching
-    #if (chatid not in chats):
-	#    chat_watch = chat_doc.on_snapshot(_on_snapshot_callback)
-	#    chats[chatid] = False	
+        # then append chat_doc to user's connected chats
+        user_doc = users_coll.document(session['user_id'])
+        user_details = user_doc.get().to_dict()
+        user_details.get("connected_chats").append(chat_doc)
+        user_doc.update(user_details, option=None)
 
+
+    # start checking for changes. 
+    if (chatid not in chats_watch_list):
+        chat_watch = chat_doc.on_snapshot(_on_snapshot_callback)
+	
     return (render_template("chat.html", users_list=chat_details.get("users"), logged_user=session["email_addr"], chatid=chatid))
 	
 @app.route("/new-chat")
 def new_chat():
     return (render_template("new-note.html"))
 
-
 @app.route("/new-chat/create")
 def create_new_chat():
     try:
         cid = str(random.random())[2:] + str(random.randint(1241, 4124))
         chats_coll.add({"nid": cid,
-                        "users": [session["email_addr"]],
+                        "users": [],
 						"chat": ""
         }, cid)
         return (redirect("/chat/{}".format(cid)))
@@ -200,55 +198,44 @@ def create_new_chat():
 # get chatid and return chat_detail
 @app.route("/chat/getinfo/<chatid>")
 def get_chat_info(chatid):
-    if (session["chats"][chatid]):
-        cht_info = chats_coll.document(chatid)
-        session["chats"][chatid] = False	
-        return (jsonify(cht_info.get().to_dict()))
-    return (jsonify(None))
+    cht_info = chats_coll.document(chatid)
+    session[chatid] = False	
+    return (jsonify(cht_info.get().to_dict()))
 
 
 @app.route("/chat/add/<chatid>/<message>")
 def add_chat(chatid, message):
+
     chat_doc = chats_coll.document(chatid)
     chat_details = chat_doc.get().to_dict()
-	
-    chat_details["chat"] += "\n[{}] : {}".format(session["email_addr"].split("@")[0], message)
+    chat_details["chat"] += "\n[{}] : {}".format(session.get("email_addr").split("@")[0], message)
     chat_doc.update(chat_details, option=None)
-	
+
     # need to handle errors but for now
     return (jsonify({}))
 
+@app.route("/chat/leave/<chatid>")
+def leave_chat(chatid):
+    try:
+        chat_doc = chats_coll.document(chatid)
+        chat_details = chat_doc.get().to_dict()
+        chat_details.get("users").remove(session.get("email_addr"))
+        chat_doc.update(chat_details, option=None)
 
-"""
-# Create a callback on_snapshot function to capture changes
-def on_snapshot(doc_snapshot, changes, read_time):
-    for doc in doc_snapshot:
-        print(u'Received document snapshot: {}'.format(doc.id))
-
-doc_ref = db.collection(u'cities').document(u'SF')
-
-# Watch the document
-doc_watch = doc_ref.on_snapshot(on_snapshot)
-
-"""
-
-"""
-solution for resolve out of context
-https://stackoverflow.com/questions/51170784/setting-flask-session-variable-outside-request-context-inside-a-generator
-
-from flask import Flask, stream_with_context, request, Response, session
-....
-
-return Response(stream_with_context(get_user_saved_tracks(session['token'], session['spotify_id'], session),
-                mimetype='text/event-stream')
-
-
-"""
+        user_doc = users_coll.document(session["user_id"])
+        user_details = user_doc.get().to_dict()
+        user_details.get("connected_chats").remove(chat_doc)
+        user_doc.update(user_details, option=None) 
+        # just for now
+        return (jsonify({}))
+    except Exception as e:
+        return (str(e))
 
 
 
 
 if (__name__ == "__main__"):
     #app.run(debug=True)
-	socketio.run(app, debug=True)
+	socketio.run(app, debug=True, host='0.0.0.0')
+
 
