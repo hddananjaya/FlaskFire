@@ -11,7 +11,9 @@ Me trying to build a realtime chat system using firebase and flask.
 * I can use socketIO to send,recive data between the server and the client. realtime.
 
 ### Current Status:
-* One user can use the system realtime. But when more than one dosen't work due to `chat` variable
+* ~~ One user can use the system realtime. But when more than one dosen't work due to `chat` variable ~~
+* Desinged as mentioned the image and manage to work all!
 
 ### ToDo
-* Find a way to change session variables when within the `on_snapshot()` method.
+* ~~ Find a way to change session variables when within the `on_snapshot()` method. ~~
+* No need to use sessions. Created a socketIo event in client to listen on chatid and send `True` if there are any changes to required clients.
