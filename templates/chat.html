@@ -34,6 +34,8 @@
 					$textarea.scrollTop($textarea[0].scrollHeight);	
 
 					// send norification if document is not focused
+					// notification_count has implemented to notify one notification
+					// at a time. because this socketio event might be triggered several times for an one message
 					if (!document.hasFocus() && is_notify && notification_count === 0){
 						var notification = new Notification("InstChat New Message");
 						notification_count++;
