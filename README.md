@@ -16,4 +16,9 @@ Me trying to build a realtime chat system using firebase and flask.
 
 ### ToDo
 * ~~Find a way to change session variables when within the `on_snapshot()` method.~~
-* No need to use sessions. Created a socketIo event in client to listen on chatid and send `True` if there are any changes to required clients.
+* ~~No need to use sessions. Created a socketIo event in client to listen on chatid and send `True` if there are any changes to required clients.~~
+* Add more features to core
+
+### Added features
+* Desktop notification when chat is not focused
+* emojis
