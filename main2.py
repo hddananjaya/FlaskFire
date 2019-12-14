@@ -68,7 +68,7 @@ def index_page():
             for i in connected_chats:
                 connected_chats_list.append(i.get().to_dict())
             
-            return render_template("index.html", user_email=session["email_addr"], chats_list=connected_chats_list)
+            return render_template("index.html", user_email=session["email_addr"], chats_list=connected_chats_list[::-1])
         except Exception as e:
             # if unable to verify session_id for any reason
             # maybe invalid or expired, redirect to login
