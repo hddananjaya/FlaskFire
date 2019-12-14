@@ -156,28 +156,30 @@ def user_logout():
 
 @app.route("/chat/<chatid>")
 def user_chat(chatid):
+    try:
+        chat_doc = chats_coll.document(chatid)
+        chat_details = chat_doc.get().to_dict()
 
-    chat_doc = chats_coll.document(chatid)
-    chat_details = chat_doc.get().to_dict()
+        # if user is not already joined then append him to users list
+        if (session["email_addr"] not in chat_details.get("users")):
+            chat_details.get("users").append(session["email_addr"])
+            chat_doc.update(chat_details, option=None)
 
-	# if user is not already joined then append him to users list
-    if (session["email_addr"] not in chat_details.get("users")):
-        chat_details.get("users").append(session["email_addr"])
-        chat_doc.update(chat_details, option=None)
-
-        # then append chat_doc to user's connected chats
-        user_doc = users_coll.document(session['user_id'])
-        user_details = user_doc.get().to_dict()
-        user_details.get("connected_chats").append(chat_doc)
-        user_doc.update(user_details, option=None)
+            # then append chat_doc to user's connected chats
+            user_doc = users_coll.document(session['user_id'])
+            user_details = user_doc.get().to_dict()
+            user_details.get("connected_chats").append(chat_doc)
+            user_doc.update(user_details, option=None)
 
 
-    # start checking for changes. 
-    if (chatid not in chats_watch_list):
-        chat_watch = chat_doc.on_snapshot(_on_snapshot_callback)
-	
-    return (render_template("chat.html", users_list=chat_details.get("users"), logged_user=session["email_addr"], chatid=chatid))
-	
+        # start checking for changes. 
+        if (chatid not in chats_watch_list):
+            chat_watch = chat_doc.on_snapshot(_on_snapshot_callback)
+
+        return (render_template("chat.html", users_list=chat_details.get("users"), logged_user=session["email_addr"], chatid=chatid))
+    except:
+        return (redirect(url_for('user_login')))
+
 @app.route("/new-chat")
 def new_chat():
     return (render_template("new-note.html"))
