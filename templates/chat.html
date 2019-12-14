@@ -5,6 +5,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 
 <script>
+
+	// notification service
+	var is_notify = false;
+	var notification_count = 0;
+	if (("Notification" in window) && Notification.permission !== "denied") {
+    Notification.requestPermission().then(function (permission) {
+      if (permission === "granted") {
+        //var notification = new Notification("Hi there!");
+		is_notify = true;
+	  }
+    });
+  	}
+
 	var socket = io.connect('http://' + location.hostname + ':' + location.port);
 
 	// listen on chatid
@@ -19,6 +32,16 @@
 					$("#chatview").val(data["chat"]);
 					var $textarea = $('#chatview');
 					$textarea.scrollTop($textarea[0].scrollHeight);	
+
+					// send norification if document is not focused
+					// notification_count has implemented to notify one notification
+					// at a time. because this socketio event might be triggered several times for an one message
+					if (!document.hasFocus() && is_notify && notification_count === 0){
+						var notification = new Notification("InstChat New Message");
+						notification_count++;
+						setTimeout(function() { notification.close() }, 600);
+						notification.onclose = function (){notification_count--};
+					}
 				}
 			});
 		},
@@ -26,6 +49,7 @@
 			console.log(error);
 		});
     });
+
 
 </script>
 
@@ -109,6 +133,4 @@ textarea.scrollTop = textarea.scrollHeight;
 		);
 	}
 </script>
-
-
 {% endblock %}
