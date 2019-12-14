@@ -1,0 +1,11 @@
+firebase-config.json
+WEB_API_KEY
+.*.swp
+/.vscode
+/env
+/__pycache__
+.fuse_*
+main.py
+main2_backup.py
+test_login.py
+

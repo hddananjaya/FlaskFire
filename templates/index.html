@@ -60,7 +60,9 @@
   <div class="row" style="margin-top:40px">
     <div class="col-lg-3"></div>
       <div class="col-lg-6">
+      {% if chats_list %}
       <label> Your Chats:</label>
+      {% endif %}
       {% for chat in chats_list %}
         <div class="card" style="margin-bottom: 20px;">
           <div class="card-header">
@@ -68,7 +70,7 @@
           </div>
           <div class="card-body">
             <h7 class="card-title">Users :</h7>
-            <p class="card-text">{{ ','.join(chat.get("users")) }}</p>
+            <p class="card-text">{{ ', '.join(chat.get("users")) }}</p>
             <a href="/chat/{{ chat.get('nid') }}" class="btn btn-primary">Open</a> 
             <a href="/chat/leave/{{ chat.get('nid') }}" class="btn btn-warning">Leave</a>
           </div>
