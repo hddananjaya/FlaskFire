@@ -37,6 +37,7 @@
 					if (!document.hasFocus() && is_notify && notification_count === 0){
 						var notification = new Notification("InstChat New Message");
 						notification_count++;
+						setTimeout(function() { notification.close() }, 600);
 						notification.onclose = function (){notification_count--};
 					}
 				}
@@ -130,21 +131,4 @@ textarea.scrollTop = textarea.scrollHeight;
 		);
 	}
 </script>
-
-<button onclick="notifyMe()">Notify me!</button>
-
-<script>
-function notifyMe() {
-
-alert(notify);
-//   if (("Notification" in window) && Notification.permission !== "denied") {
-//     Notification.requestPermission().then(function (permission) {
-//       if (permission === "granted") {
-//         var notification = new Notification("Hi there!");
-//       }
-//     });
-//   }
-}
-</script>
-
 {% endblock %}
