@@ -73,7 +73,7 @@ def index_page():
             # if unable to verify session_id for any reason
             # maybe invalid or expired, redirect to login
             flash_msg = "Your session is expired!"
-            flash(flash_msgs)
+            flash(flash_msg)
             return redirect(url_for("user_login"))   
 
     flash_msg = "Please Log In"

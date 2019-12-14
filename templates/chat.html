@@ -4,6 +4,12 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/emoji-button@2.2.2/dist/index.min.js"></script>
+<!-- my custom css -->
+<link rel="stylesheet" type="text/css" href="/static/css/custom.css">
+
+
+
 <script>
 
 	// notification service
@@ -72,7 +78,7 @@
 		</div>
         <div class="col-lg">
 			{% for user in users_list %}
-				<label class="text-muted" >[{{user}}]</label>
+				<label class="text-muted" >[{{ user }}]</label>
 			{% endfor %}
         </div>
 		<hr>
@@ -90,6 +96,7 @@
 		</div>
 		<input type="text" id="message" class="form-control" autofocus placeholder="Type your message">
 		<div class="input-group-append">
+			<button id="emoji-btn" class="btn btn-outline-secondary" type="button">😎</button>
 			<button id="btn-send" type="button" onclick="submitMessage()" type="submit" class="btn btn-primary btn-block">
 			SEND
 			</button>
@@ -133,4 +140,21 @@ textarea.scrollTop = textarea.scrollHeight;
 		);
 	}
 </script>
+
+<script>
+  var button = document.querySelector('#emoji-btn');
+  var picker = new EmojiButton({
+	  position:'top',
+	  showPreview:false
+  });
+
+  picker.on('emoji', emoji => {
+    document.querySelector('#message').value += emoji;
+  });
+
+  button.addEventListener('click', () => {
+    picker.pickerVisible ? picker.hidePicker() : picker.showPicker(button);
+  });v
+</script>
+
 {% endblock %}
