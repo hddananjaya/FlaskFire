@@ -4,133 +4,208 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/emoji-button@2.2.2/dist/index.min.js"></script>
+<!-- my custom css -->
+<link rel="stylesheet" type="text/css" href="/static/css/custom.css">
+
+
+
 <script>
 
 	// notification service
 	var is_notify = false;
 	var notification_count = 0;
 	if (("Notification" in window) && Notification.permission !== "denied") {
-    Notification.requestPermission().then(function (permission) {
-      if (permission === "granted") {
-        //var notification = new Notification("Hi there!");
-		is_notify = true;
-	  }
-    });
-  	}
+		Notification.requestPermission().then(function (permission) {
+			if (permission === "granted") {
+				//var notification = new Notification("Hi there!");
+				is_notify = true;
+			}
+		});
+	}
 
 	var socket = io.connect('http://' + location.hostname + ':' + location.port);
 
 	// listen on chatid
 	// fetch from the database when there is a change
-    socket.on('{{ chatid }}', (data) => {			
+	socket.on('{{ chatid }}', (data) => {
 		fetch("/chat/getinfo/{{ chatid }}")
-		.then((data) => {
-			data.json().then((data) => {
-				console.log(data);
-				if (data !== null) { 
-					//console.log(data["chat"]);
-					$("#chatview").val(data["chat"]);
-					var $textarea = $('#chatview');
-					$textarea.scrollTop($textarea[0].scrollHeight);	
+			.then((data) => {
+				data.json().then((data) => {
+					console.log(data);
+					if (data !== null) {
+						//console.log(data["chat"]);
+						$("#chatview").val(data["chat"]);
+						var $textarea = $('#chatview');
+						$textarea.scrollTop($textarea[0].scrollHeight);
 
-					// send norification if document is not focused
-					// notification_count has implemented to notify one notification
-					// at a time. because this socketio event might be triggered several times for an one message
-					if (!document.hasFocus() && is_notify && notification_count === 0){
-						var notification = new Notification("InstChat New Message");
-						notification_count++;
-						setTimeout(function() { notification.close() }, 600);
-						notification.onclose = function (){notification_count--};
+						// send norification if document is not focused
+						// notification_count has implemented to notify one notification
+						// at a time. because this socketio event might be triggered several times for an one message
+						if (!document.hasFocus() && is_notify && notification_count === 0) {
+							var notification = new Notification("InstChat New Message");
+							notification_count++;
+							setTimeout(function () { notification.close() }, 600);
+							notification.onclose = function () { notification_count-- };
+						}
 					}
-				}
-			});
-		},
-		(error) => {
-			console.log(error);
-		});
-    });
+				});
+			},
+				(error) => {
+					console.log(error);
+				});
+	});
 
 
 </script>
 
 <style>
-.avatar {
-  vertical-align: middle;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-}
+	.avatar {
+		vertical-align: middle;
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+	}
 </style>
 
 <body>
-    <div class="container" style="margin-top: 20px">
-      <div class="row">
-		<div class="col-lg-1">
-			<button onclick="window.location='/'" type="button" type="submit" class="btn btn-secondary btn-block">
-			Home	
-			</button>
+	<div class="container" style="margin-top: 20px">
+		<div class="row">
+			<div class="col-lg-1">
+				<button onclick="window.location='/'" type="button" type="submit" class="btn btn-secondary btn-block">
+					Home
+				</button>
+			</div>
+			<div class="col-lg">
+				{% for user in users_list %}
+				<label class="text-muted">[{{ user }}]</label>
+				{% endfor %}
+			</div>
+			<div class="col-lg-1">
+				<button data-toggle="modal" data-target="#menuModal" type="button" type="submit"
+					class="btn btn-outline-secondary btn-block">
+					<i class="fa fa-bars"></i>
+				</button>
+			</div>
+			<hr>
 		</div>
-        <div class="col-lg">
-			{% for user in users_list %}
-				<label class="text-muted" >[{{user}}]</label>
-			{% endfor %}
-        </div>
 		<hr>
-      </div>
-	<hr>
-	<div class="row" style="height:70%">
-		<textarea id="chatview" style="width:100%; height:100%;" readonly>
+		<div class="row" style="height:70%">
+			<textarea id="chatview" style="width:100%; height:100%;" readonly>
 		</textarea>
+		</div>
+
+		<div class="row" style="margin-top:10px">
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" title="{{ logged_user }}">[ {{ logged_user.split("@")[0] }} ]
+						:</span>
+				</div>
+				<input type="text" id="message" class="form-control" autofocus placeholder="Type your message">
+				<div class="input-group-append">
+					<button id="emoji-btn" class="btn btn-outline-secondary" type="button">😎</button>
+					<button id="btn-send" type="button" onclick="submitMessage()" type="submit"
+						class="btn btn-primary btn-block">
+						SEND
+					</button>
+				</div>
+			</div>
+			</form>
+		</div>
 	</div>
 
-	<div class="row" style="margin-top:10px">
-	  <div class="input-group mb-3">
-		<div class="input-group-prepend">
-			<span class="input-group-text" title="{{ logged_user }}">[ {{ logged_user.split("@")[0] }} ] :</span>
+	<!-- Menu modal -->
+	<div class="modal fade" id="menuModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLongTitle">InstChat Help</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<ul>
+						<li>
+							Shortcuts
+							<ul>
+								<li>Enter : send message</li>
+								<li>Ctrl+Enter : pop up emojis</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<div class="modal-footer">
+				</div>
+			</div>
 		</div>
-		<input type="text" id="message" class="form-control" autofocus placeholder="Type your message">
-		<div class="input-group-append">
-			<button id="btn-send" type="button" onclick="submitMessage()" type="submit" class="btn btn-primary btn-block">
-			SEND
-			</button>
-		</div>
-		</div>
-	   </form>
-	</div>	  
-    </div>
+	</div>
+
 
 </body>
 
 <script>
 
-var textarea = document.getElementById('chatview');
-textarea.scrollTop = textarea.scrollHeight;
+	var textarea = document.getElementById('chatview');
+	textarea.scrollTop = textarea.scrollHeight;
 	// press enter to submit the message
 	$("#message").keypress(function (e) {
 		var key = e.which;
-		if(key == 13){
+		if (key == 13) {
 			$("#btn-send").click();
-			return false;  
+			return false;
 		}
-	}); 
+	});
+
 </script>
 
 
 <script>
 	// submit a new message
-	function submitMessage(){
-		$("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');	
-		
+	function submitMessage() {
+		$("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+
 		var message = document.getElementById("message").value;
-		fetch("/chat/add/{{ chatid }}/" + message, {credentials: "same-origin"})
-		.then ((data) => {
-			$("#btn-send").html('SEND');
-			$("#message").val('');		
-		},
-		(error) => {
-			console.log(error);
-		}
-		);
+		fetch("/chat/add/{{ chatid }}/" + message, { credentials: "same-origin" })
+			.then((data) => {
+				$("#btn-send").html('SEND');
+				$("#message").val('');
+			},
+				(error) => {
+					console.log(error);
+				}
+			);
 	}
 </script>
+
+<script>
+	var button = document.querySelector('#emoji-btn');
+	var picker = new EmojiButton({
+		position: 'top',
+		showPreview: false
+	});
+
+	picker.on('emoji', emoji => {
+		document.querySelector('#message').value += emoji;
+		$('#message').focus();
+	});
+
+	button.addEventListener('click', () => {
+		if (picker.pickerVisible) { 
+			picker.hidePicker();	
+		} else { 
+			picker.showPicker(button)
+		};
+
+	});
+
+	$('#message').keydown(function (e) {
+		if (e.ctrlKey && e.keyCode == 13) {
+			picker.pickerVisible ? picker.hidePicker() : picker.showPicker(button);
+		}
+	});
+
+</script>
+
 {% endblock %}

@@ -2,7 +2,7 @@
 {% block content %}
 <script>
   /*
-   Create a new node  
+   Create a new chat  
   */
   function create_new_note() {
     $("#btn-create-new-chat").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating ...');
@@ -61,7 +61,7 @@
     <div class="col-lg-3"></div>
       <div class="col-lg-6">
       {% if chats_list %}
-      <label> Your Chats:</label>
+      <label> Your recent chats:</label>
       {% endif %}
       {% for chat in chats_list %}
         <div class="card" style="margin-bottom: 20px;">
