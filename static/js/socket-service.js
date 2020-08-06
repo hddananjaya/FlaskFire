@@ -13,12 +13,34 @@ document.addEventListener("visibilitychange", function() {
 });
 
 var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
-socket.on('{{ chatid }}', (data) => {
+socket.on(chatId, (data) => {
     if (data && data.hasOwnProperty('message')) {
-        const chatText = $("#chatview").val()
-        $("#chatview").val(`${chatText}\n${data['message']}`);
-        var $textarea = $('#chatview');
-        $textarea.scrollTop($textarea[0].scrollHeight);
+        let message;
+        if (email === data.email) {
+            const messageOut = `
+            <div class="message message-out">
+                <span class="messsage-text">
+                    ${data.message}
+                </span>
+            </div>
+            `;
+            message = messageOut;
+        } else {
+            const messageIn = `
+            <div class="message message-in">
+                <span class="message-sender">
+                    ${data.email}
+                </span> <br>
+                <span class="messsage-text">
+                    ${data.message}
+                </span>
+            </div>
+            `;
+            message = messageIn;
+        }
+        const chat = $("#chat");
+        chat.append(message).hide().show('slow');
+        chat.scrollTop(chat.prop("scrollHeight"));
         if (document.hidden) {
             setTimeout(() => {
                 playAlert("pop");
@@ -28,8 +50,6 @@ socket.on('{{ chatid }}', (data) => {
     }
 });
 
-var textarea = document.getElementById('chatview');
-textarea.scrollTop = textarea.scrollHeight;
 // press enter to submit the message
 $("#message").keypress(function (e) {
     var key = e.which;
@@ -46,7 +66,7 @@ function submitMessage() {
         $("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         socket.emit('messageHandler', {
             message,
-            chatId: '{{ chatid }}'
+            chatId,
         }, () => {
             $("#btn-send").html('SEND');
             $("#message").val('');			

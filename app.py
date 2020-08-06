@@ -229,7 +229,8 @@ def handle_message(transfer_obj):
             chat_id = transfer_obj.get("chatId")
             message = transfer_obj.get("message")
             socketio.emit(chat_id, {
-                "message": '[{}]: {}'.format(email.split('@')[0], message)
+                "message": message,
+                "email": email,
             })
         except:
             pass
