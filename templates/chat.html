@@ -24,7 +24,13 @@
 		});
 	}
 
-	var socket = io.connect('http://' + location.hostname + ':' + location.port);
+	var protocol;
+	if (location.hostname.includes('localhost')) {
+		protocol = 'http://'
+	} else {
+		protocol = 'https://'
+	}
+	var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
 
 	// listen on chatid
 	// fetch from the database when there is a change
