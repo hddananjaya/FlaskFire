@@ -19,13 +19,15 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # firebase-admin init
-cred = credentials.Certificate('firebase-config.json')
+cred = credentials.Certificate(os.path.join(__location__, 'firebase-config.json'))
 default_app = firebase_admin.initialize_app(cred)
 # firestore db reference
 db = firestore.client()
@@ -36,7 +38,7 @@ users_coll = db.collection(u"users")
 chats_coll = db.collection(u"notes")
 
 # read web api key from file
-with open('WEB_API_KEY', 'r') as wak:
+with open(os.path.join(__location__, 'WEB_API_KEY')) as wak:
      WEB_API_KEY = wak.read()
 
 # firebase user auth init
