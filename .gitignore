@@ -5,7 +5,4 @@ WEB_API_KEY
 /env
 /__pycache__
 .fuse_*
-main.py
-main2_backup.py
-test_login.py
-
+.env
