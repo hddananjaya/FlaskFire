@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve flaskfire
+After=newwork.target
+
+[Service]
+User=akila
+Group=www-data
+WorkingDirectory=/home/akila/flaskfire
+Environment="PATH=/home/akila/flaskfire/env/bin"
+ExecStart=/home/akila/flaskfire/env/bin/uwsgi --ini app.ini
+
+[Install]
+WantedBy=multi-user.target
