@@ -17,6 +17,7 @@ import random
 
 from dotenv import load_dotenv
 import os
+import uuid
 load_dotenv()
 
 __location__ = os.path.realpath(
@@ -190,12 +191,13 @@ def new_chat():
 @app.route("/new-chat/create")
 def create_new_chat():
     try:
-        cid = str(random.random())[2:] + str(random.randint(1241, 4124))
-        chats_coll.add({"nid": cid,
-                        "users": [],
-						"chat": ""
-        }, cid)
-        return (redirect("/chat/{}".format(cid)))
+        id = str(uuid.uuid4())
+        chats_coll.add({
+            "nid": id,
+            "users": [],
+            "chat": ""
+        }, id)
+        return (redirect("/chat/{}".format(id)))
     except:
 	    return ("There is an error. Please try again.")
 	
