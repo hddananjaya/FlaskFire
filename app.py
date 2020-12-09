@@ -59,7 +59,6 @@ def index_page():
             #flash(decoded_clamis)
             session['email_addr'] = decoded_clamis['email']
             session['user_id'] = decoded_clamis['user_id']
-
             #
             # Trying to implement users connected chats list
             #
@@ -67,12 +66,10 @@ def index_page():
             user_details = user_doc.get().to_dict()
             connected_chats = user_details.get("connected_chats")
             #flash(decoded_clamis)
-
             connected_chats_list = []
             for i in connected_chats:
                 connected_chats_list.append(i.get().to_dict())
-            
-            return render_template("index.html", user_email=session["email_addr"], chats_list=connected_chats_list[::-1])
+            return render_template("index.html", user_name=user_details.get('name'), chats_list=connected_chats_list[::-1])
         except Exception as e:
             # if unable to verify session_id for any reason
             # maybe invalid or expired, redirect to login

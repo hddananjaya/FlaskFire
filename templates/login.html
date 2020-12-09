@@ -3,7 +3,7 @@
 <style>
 
 body {
-  background-image: url("/static/img/back.jpg");
+  background-image: url("/static/img/Mountain.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -13,12 +13,12 @@ body {
   <body>
     <div class="bg"></div>
 
-      <div class="container" style="margin-top: 40px">
+      <div class="container" style="margin-top: 195px">
       <div class="row">
         <div class="col-lg">
         </div>
-        <div class="col-lg text-center">
-          <!-- <img src="static/img/locked.jpg" style="margin:20px;width:70%"> -->
+        <div class="col-lg text-center login-form">
+          <img src="static/img/hexoralogo.png" style="margin:20px;width:70%">
           {% with flash_messages = get_flashed_messages() %}
           {% if flash_messages %}
             {% for message in flash_messages %}
@@ -43,16 +43,16 @@ body {
         <form method="POST" action="{{ url_for('user_login') }}">        
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">User Login</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Login</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body mx-3">
               <div class="md-form">
-                  <input name="userEmail" placeholder="Your Email" type="text" autofocus class="form-control">
+                  <input name="userEmail" placeholder="Email" type="text" autofocus class="form-control">
                   <br>
-                  <input name="userPassword" placeholder="Your Password"  type="password" class="form-control">
+                  <input name="userPassword" placeholder="Password"  type="password" class="form-control">
                 </div>              
               <br>          
           </div>
@@ -71,18 +71,19 @@ body {
         <form method="POST" action="{{ url_for('user_register') }}">        
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">User Register</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Register</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body mx-3">
               <div class="md-form">
-                  <input name="userName" placeholder="Your Name" type="text" autofocus class="form-control">
+                  <input name="userName" placeholder="Full Name" type="text" autofocus class="form-control">
                   <br>
-                  <input name="userEmail" placeholder="Your Email" type="text" autofocus class="form-control">
+                  <input name="userEmail" placeholder="Email Address" type="text" autofocus class="form-control">
+                  <label for="userEmail" class="text-muted email-required"> * This is required to recover your account.</label>
                   <br>
-                  <input name="userPassword" placeholder="Your Password"  type="password" class="form-control">
+                  <input name="userPassword" placeholder="Password"  type="password" class="form-control">
                 </div>              
               <br>          
           </div>

@@ -28,7 +28,7 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
     </ul>
-    <p style="margin:5px"> [{{ user_email }}]</p>
+    <p style="margin:5px">{{ user_name }}</p>
     <p style="margin:5px"> <a href="/logout">Log out</a></p>
   </div>
 </nav>
@@ -49,7 +49,7 @@
       {% endwith %}
       <div class="col-lg text-center">
         <button id="btn-create-new-chat" type="button" onclick="create_new_note()" class="btn btn-success  btn-block">
-          Create a new chat
+          <i class="fa fa-plus" aria-hidden="true"></i> &nbsp; New Chat Room
         </button>
       </div>
     </div>
@@ -60,19 +60,23 @@
   <div class="row" style="margin-top:40px">
     <div class="col-lg-3"></div>
       <div class="col-lg-6">
-      {% if chats_list %}
-      <label> Your recent chats:</label>
-      {% endif %}
       {% for chat in chats_list %}
         <div class="card" style="margin-bottom: 20px;">
-          <div class="card-header">
-            Chat : {{ chat.get("nid") }}
+          <div class="card-header text-muted chat-id">
+            <div class="card-header-content">
+                <div>
+                  {{ chat.get("nid") }}
+                </div>
+                <div>
+                  <a href="/chat/leave/{{ chat.get('nid') }}" class="btn btn-outline-dark btn-sm">Leave</a>
+                </div>
+            </div>
+
           </div>
           <div class="card-body">
             <h7 class="card-title">Users :</h7>
             <p class="card-text">{{ ', '.join(chat.get("users")) }}</p>
             <a href="/chat/{{ chat.get('nid') }}" class="btn btn-primary">Open</a> 
-            <a href="/chat/leave/{{ chat.get('nid') }}" class="btn btn-warning">Leave</a>
           </div>
         </div>
         {% endfor %}
