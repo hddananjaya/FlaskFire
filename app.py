@@ -208,9 +208,9 @@ def get_chat_info(chatid):
     return (jsonify(cht_info.get().to_dict()))
 
 
-@app.route("/chat/add/<chatid>/<message>")
-def add_chat(chatid, message):
-
+@app.route("/chat/add/<chatid>", methods=["POST"])
+def add_chat(chatid):
+    message = request.get_json().get("message")
     chat_doc = chats_coll.document(chatid)
     chat_details = chat_doc.get().to_dict()
     chat_details["chat"] += "\n[{}] : {}".format(session.get("email_addr").split("@")[0], message)
