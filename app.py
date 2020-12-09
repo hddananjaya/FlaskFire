@@ -76,9 +76,6 @@ def index_page():
             flash_msg = "Your session is expired!"
             flash(flash_msg)
             return redirect(url_for("user_login"))   
-
-    flash_msg = "Please Log In"
-    flash(flash_msg)
     return redirect(url_for("user_login"))    
 
 @app.route('/login', methods=["GET","POST"])
@@ -109,6 +106,7 @@ def user_login():
                 flash_msg = "Something is wrong!!"
         flash(flash_msg)
     # return login page for GET request
+    flash_msg = None
     return render_template("login.html")
     
 
