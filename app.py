@@ -17,6 +17,7 @@ import random
 
 from dotenv import load_dotenv
 import os
+import uuid
 load_dotenv()
 
 __location__ = os.path.realpath(
@@ -37,12 +38,8 @@ users_coll = db.collection(u"users")
 # notes collection reference
 chats_coll = db.collection(u"notes")
 
-# read web api key from file
-with open(os.path.join(__location__, 'WEB_API_KEY')) as wak:
-     WEB_API_KEY = wak.read()
-
 # firebase user auth init
-user_auth = firebase_user_auth.initialize(WEB_API_KEY)
+user_auth = firebase_user_auth.initialize(os.getenv("WEB_API_KEY"))
 
 # keeping already watching list
 chats_watch_list = {}
@@ -62,7 +59,6 @@ def index_page():
             #flash(decoded_clamis)
             session['email_addr'] = decoded_clamis['email']
             session['user_id'] = decoded_clamis['user_id']
-
             #
             # Trying to implement users connected chats list
             #
@@ -70,12 +66,10 @@ def index_page():
             user_details = user_doc.get().to_dict()
             connected_chats = user_details.get("connected_chats")
             #flash(decoded_clamis)
-
             connected_chats_list = []
             for i in connected_chats:
                 connected_chats_list.append(i.get().to_dict())
-            
-            return render_template("index.html", user_email=session["email_addr"], chats_list=connected_chats_list[::-1])
+            return render_template("index.html", user_name=user_details.get('name'), chats_list=connected_chats_list[::-1])
         except Exception as e:
             # if unable to verify session_id for any reason
             # maybe invalid or expired, redirect to login
@@ -194,12 +188,13 @@ def new_chat():
 @app.route("/new-chat/create")
 def create_new_chat():
     try:
-        cid = str(random.random())[2:] + str(random.randint(1241, 4124))
-        chats_coll.add({"nid": cid,
-                        "users": [],
-						"chat": ""
-        }, cid)
-        return (redirect("/chat/{}".format(cid)))
+        id = str(uuid.uuid4())
+        chats_coll.add({
+            "nid": id,
+            "users": [],
+            "chat": ""
+        }, id)
+        return (redirect("/chat/{}".format(id)))
     except:
 	    return ("There is an error. Please try again.")
 	
@@ -212,9 +207,9 @@ def get_chat_info(chatid):
     return (jsonify(cht_info.get().to_dict()))
 
 
-@app.route("/chat/add/<chatid>/<message>")
-def add_chat(chatid, message):
-
+@app.route("/chat/add/<chatid>", methods=["POST"])
+def add_chat(chatid):
+    message = request.get_json().get("message")
     chat_doc = chats_coll.document(chatid)
     chat_details = chat_doc.get().to_dict()
     chat_details["chat"] += "\n[{}] : {}".format(session.get("email_addr").split("@")[0], message)
@@ -235,15 +230,10 @@ def leave_chat(chatid):
         user_details = user_doc.get().to_dict()
         user_details.get("connected_chats").remove(chat_doc)
         user_doc.update(user_details, option=None) 
-        # just for now
-        return (jsonify({}))
+        return redirect(url_for("index_page"))   
     except Exception as e:
         return (str(e))
 
-
-
-
 if (__name__ == "__main__"):
-    #app.run(debug=True)
-	socketio.run(app, debug=True, host='0.0.0.0', port=8080)
+	socketio.run(app, debug=bool(os.getenv("DEBUG")), host='0.0.0.0', port=8080)
 

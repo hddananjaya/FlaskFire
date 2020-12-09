@@ -1,3 +1,43 @@
 .emoji-picker{
 	margin:10px
 }
+
+.chat-id {
+	font-size: 12px;
+}
+
+.card-header-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.login-form {
+    background-color: whitesmoke;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.email-required {
+	font-size: 12px;
+}
+
+.hexora-logo-min {
+    width: 108px;
+}
+
+* {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	
+	-webkit-user-drag: none;
+	-khtml-user-drag: none;
+	-moz-user-drag: none;
+	-o-user-drag: none;
+	-ms-user-drag: none;
+}
