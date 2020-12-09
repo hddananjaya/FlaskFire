@@ -37,10 +37,6 @@ users_coll = db.collection(u"users")
 # notes collection reference
 chats_coll = db.collection(u"notes")
 
-# read web api key from file
-# with open(os.path.join(__location__, 'WEB_API_KEY')) as wak:
-#      WEB_API_KEY = wak.read()
-
 # firebase user auth init
 user_auth = firebase_user_auth.initialize(os.getenv("WEB_API_KEY"))
 
@@ -244,6 +240,5 @@ def leave_chat(chatid):
 
 
 if (__name__ == "__main__"):
-    #app.run(debug=True)
-	socketio.run(app, debug=True, host='0.0.0.0', port=8080)
+	socketio.run(app, debug=bool(os.getenv("DEBUG")), host='0.0.0.0', port=8080)
 
