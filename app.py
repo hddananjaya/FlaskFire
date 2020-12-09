@@ -230,13 +230,9 @@ def leave_chat(chatid):
         user_details = user_doc.get().to_dict()
         user_details.get("connected_chats").remove(chat_doc)
         user_doc.update(user_details, option=None) 
-        # just for now
-        return (jsonify({}))
+        return redirect(url_for("index_page"))   
     except Exception as e:
         return (str(e))
-
-
-
 
 if (__name__ == "__main__"):
 	socketio.run(app, debug=bool(os.getenv("DEBUG")), host='0.0.0.0', port=8080)

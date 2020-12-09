@@ -19,7 +19,9 @@
   }
 </script>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#">InstChat</a>
+  <a class="navbar-brand" href="#">
+    <img src="/static/img/hexoralogo.min.png" class="hexora-logo-min" alt="hexora-logo">
+  </a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -28,7 +30,7 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
     </ul>
-    <p style="margin:5px">{{ user_name }}</p>
+    <p style="margin:5px">Hi, {{ user_name }}!</p>
     <p style="margin:5px"> <a href="/logout">Log out</a></p>
   </div>
 </nav>
