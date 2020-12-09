@@ -38,11 +38,11 @@ users_coll = db.collection(u"users")
 chats_coll = db.collection(u"notes")
 
 # read web api key from file
-with open(os.path.join(__location__, 'WEB_API_KEY')) as wak:
-     WEB_API_KEY = wak.read()
+# with open(os.path.join(__location__, 'WEB_API_KEY')) as wak:
+#      WEB_API_KEY = wak.read()
 
 # firebase user auth init
-user_auth = firebase_user_auth.initialize(WEB_API_KEY)
+user_auth = firebase_user_auth.initialize(os.getenv("WEB_API_KEY"))
 
 # keeping already watching list
 chats_watch_list = {}
