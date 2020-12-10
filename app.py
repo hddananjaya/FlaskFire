@@ -18,6 +18,7 @@ import random
 from dotenv import load_dotenv
 import os
 import uuid
+from random_username.generate import generate_username
 load_dotenv()
 
 __location__ = os.path.realpath(
@@ -187,10 +188,12 @@ def new_chat():
 def create_new_chat():
     try:
         id = str(uuid.uuid4())
+        name = generate_username(1)[0]
         chats_coll.add({
             "nid": id,
             "users": [],
-            "chat": ""
+            "chat": "",
+            "name": name,
         }, id)
         return (redirect("/chat/{}".format(id)))
     except:
