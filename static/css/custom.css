@@ -27,6 +27,18 @@
     width: 108px;
 }
 
+.chat-textarea {
+	resize: none;
+    border-style: solid;
+	border-width: thick;
+	width: 100%;
+	height: 100%;
+}
+
+.chat-name {
+	font-weight: bold;
+}
+
 * {
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -40,4 +52,18 @@
 	-moz-user-drag: none;
 	-o-user-drag: none;
 	-ms-user-drag: none;
+}
+
+@media only screen and (max-width: 600px) {
+	.login-form {
+		margin: 40px;
+	}
+}
+
+.room-avatar {
+    width: 52px;
+}
+
+.room-btns {
+    margin-left: auto;
 }

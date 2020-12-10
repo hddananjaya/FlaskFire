@@ -18,7 +18,7 @@
         });
   }
 </script>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
   <a class="navbar-brand" href="#">
     <img src="/static/img/hexoralogo.min.png" class="hexora-logo-min" alt="hexora-logo">
   </a>
@@ -31,7 +31,7 @@
     <ul class="navbar-nav mr-auto">
     </ul>
     <p style="margin:5px">Hi, {{ user_name }}!</p>
-    <p style="margin:5px"> <a href="/logout">Log out</a></p>
+    <p style="margin:5px"> <a href="/logout">Logout</a></p>
   </div>
 </nav>
 
@@ -64,25 +64,27 @@
       <div class="col-lg-6">
       {% for chat in chats_list %}
         <div class="card" style="margin-bottom: 20px;">
-          <div class="card-header text-muted chat-id">
+          <div class="card-header">
             <div class="card-header-content">
-                <div>
-                  {{ chat.get("nid") }}
+                <img class="room-avatar" src="http://tinygraphs.com/labs/isogrids/hexa/{{chat.get('nid')}}?theme=heatwave&numcolors=4&size=220&fmt=svg">
+                <div class="chat-name ml-3">
+                  {{ chat.get("name") }}
                 </div>
-                <div>
+                <div class="room-btns">
+                  <a href="/chat/{{ chat.get('nid') }}" class="btn btn-primary btn-sm">Open</a> 
                   <a href="/chat/leave/{{ chat.get('nid') }}" class="btn btn-outline-dark btn-sm">Leave</a>
                 </div>
             </div>
 
           </div>
           <div class="card-body">
-            <h7 class="card-title">Users :</h7>
-            <p class="card-text">{{ ', '.join(chat.get("users")) }}</p>
-            <a href="/chat/{{ chat.get('nid') }}" class="btn btn-primary">Open</a> 
+            <p class="card-title">Members :</p>
+            {% for user in chat.get("users") %}
+              <span class="badge badge-pill badge-secondary">{{ user }}</span>
+            {% endfor %}
           </div>
         </div>
         {% endfor %}
-
     </div>
 
     <div class="col-lg-3"></div>
