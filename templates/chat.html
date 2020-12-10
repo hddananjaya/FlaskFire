@@ -19,7 +19,6 @@
 	var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
 	socket.on('{{ chatid }}', (data) => {
 		if (data && data.hasOwnProperty('message')) {
-			console.log('asdf')
 			const chatText = $("#chatview").val()
 			$("#chatview").val(`${chatText}\n${data['message']}`);
 			var $textarea = $('#chatview');
