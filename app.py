@@ -42,14 +42,6 @@ chats_coll = db.collection(u"notes")
 # firebase user auth init
 user_auth = firebase_user_auth.initialize(os.getenv("WEB_API_KEY"))
 
-# keeping already watching list
-chats_watch_list = {}
-
-def _on_snapshot_callback(doc_snapshot, changes, readtime):
-    # need to send requried event to required people
-    chatid = doc_snapshot[0].id
-    socketio.emit(chatid, {'doc_updated': True})
-
 @app.route('/')
 def index_page():
     flash_msg = None
@@ -170,12 +162,6 @@ def user_chat(chatid):
             user_details = user_doc.get().to_dict()
             user_details.get("connected_chats").append(chat_doc)
             user_doc.update(user_details, option=None)
-
-
-        # start checking for changes. 
-        if (chatid not in chats_watch_list):
-            chat_watch = chat_doc.on_snapshot(_on_snapshot_callback)
-
         return (render_template("chat.html", users_list=chat_details.get("users"), logged_user=session["email_addr"], chatid=chatid))
     except:
         return (redirect(url_for('user_login')))
@@ -184,7 +170,7 @@ def user_chat(chatid):
 def new_chat():
     return (render_template("new-note.html"))
 
-@app.route("/new-chat/create")
+@app.route("/chat/create")
 def create_new_chat():
     try:
         id = str(uuid.uuid4())
@@ -204,7 +190,6 @@ def create_new_chat():
 @app.route("/chat/getinfo/<chatid>")
 def get_chat_info(chatid):
     cht_info = chats_coll.document(chatid)
-    session[chatid] = False	
     return (jsonify(cht_info.get().to_dict()))
 
 
@@ -235,6 +220,19 @@ def leave_chat(chatid):
     except Exception as e:
         return (str(e))
 
+@socketio.on('messageHandler')
+def handle_message(transfer_obj):
+    if ("session_id" in session):
+        try:
+            decoded_clamis = auth.verify_session_cookie(session["session_id"])   
+            email = decoded_clamis['email']
+            chat_id = transfer_obj.get("chatId")
+            message = transfer_obj.get("message")
+            socketio.emit(chat_id, {
+                "message": '[{}]: {}'.format(email.split('@')[0], message)
+            })
+        except:
+            pass
 if (__name__ == "__main__"):
 	socketio.run(app, debug=bool(os.getenv("DEBUG")), host='0.0.0.0', port=8080)
 

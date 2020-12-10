@@ -1,12 +1,9 @@
 {% extends "header.html" %}
 {% block content %}
 <script>
-  /*
-   Create a new chat  
-  */
-  function create_new_note() {
+  function creatNewChat() {
     $("#btn-create-new-chat").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating ...');
-    fetch("/new-chat/create")
+    fetch("/chat/create")
       .then((data) => {
         console.log(data);
         $("#btn-create-new-chat").html("Created!");
@@ -50,7 +47,7 @@
       {% endif %}
       {% endwith %}
       <div class="col-lg text-center">
-        <button id="btn-create-new-chat" type="button" onclick="create_new_note()" class="btn btn-success  btn-block">
+        <button id="btn-create-new-chat" type="button" onclick="creatNewChat()" class="btn btn-success  btn-block">
           <i class="fa fa-plus" aria-hidden="true"></i> &nbsp; New Chat Room
         </button>
       </div>

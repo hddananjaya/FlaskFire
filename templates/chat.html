@@ -10,19 +10,6 @@
 
 
 <script>
-
-	// notification service
-	var is_notify = false;
-	var notification_count = 0;
-	if (("Notification" in window) && Notification.permission !== "denied") {
-		Notification.requestPermission().then(function (permission) {
-			if (permission === "granted") {
-				//var notification = new Notification("Hi there!");
-				is_notify = true;
-			}
-		});
-	}
-
 	var protocol;
 	if (location.hostname.includes('localhost')) {
 		protocol = 'http://'
@@ -30,38 +17,15 @@
 		protocol = 'https://'
 	}
 	var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
-
-	// listen on chatid
-	// fetch from the database when there is a change
 	socket.on('{{ chatid }}', (data) => {
-		fetch("/chat/getinfo/{{ chatid }}")
-			.then((data) => {
-				data.json().then((data) => {
-					console.log(data);
-					if (data !== null) {
-						//console.log(data["chat"]);
-						$("#chatview").val(data["chat"]);
-						var $textarea = $('#chatview');
-						$textarea.scrollTop($textarea[0].scrollHeight);
-
-						// send norification if document is not focused
-						// notification_count has implemented to notify one notification
-						// at a time. because this socketio event might be triggered several times for an one message
-						if (!document.hasFocus() && is_notify && notification_count === 0) {
-							var notification = new Notification("InstChat New Message");
-							notification_count++;
-							setTimeout(function () { notification.close() }, 600);
-							notification.onclose = function () { notification_count-- };
-						}
-					}
-				});
-			},
-				(error) => {
-					console.log(error);
-				});
+		if (data && data.hasOwnProperty('message')) {
+			console.log('asdf')
+			const chatText = $("#chatview").val()
+			$("#chatview").val(`${chatText}\n${data['message']}`);
+			var $textarea = $('#chatview');
+			$textarea.scrollTop($textarea[0].scrollHeight);
+		}
 	});
-
-
 </script>
 
 <style>
@@ -108,7 +72,7 @@
 				</div>
 				<input type="text" id="message" class="form-control" autofocus placeholder="Type your message">
 				<div class="input-group-append">
-					<button id="emoji-btn" class="btn btn-outline-secondary" type="button">😎</button>
+					<button id="emoji-btn" class="btn btn-outline-secondary" disabled type="button">😎</button>
 					<button id="btn-send" type="button" onclick="submitMessage()" type="submit"
 						class="btn btn-primary btn-block">
 						SEND
@@ -169,18 +133,17 @@
 <script>
 	// submit a new message
 	function submitMessage() {
-		$("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-		var message = document.getElementById("message").value;
-		axios.post('/chat/add/{{ chatid }}', {
-    		message,
-  		})
-		.then(function (response) {
-			$("#btn-send").html('SEND');
-			$("#message").val('');
-		})
-		.catch(function (error) {
-			console.log(error);
-		});
+		const message = document.getElementById("message").value;
+		if (message) {
+			$("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+			socket.emit('messageHandler', {
+				message,
+				chatId: '{{ chatid }}'
+			}, () => {
+				$("#btn-send").html('SEND');
+				$("#message").val('');			
+			});
+		}
 	}
 </script>
 
