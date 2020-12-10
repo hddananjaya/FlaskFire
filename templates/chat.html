@@ -6,27 +6,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/emoji-button@2.2.2/dist/index.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"></script>
-
-
-
-<script>
-	var protocol;
-	if (location.hostname.includes('localhost')) {
-		protocol = 'http://'
-	} else {
-		protocol = 'https://'
-	}
-	var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
-	socket.on('{{ chatid }}', (data) => {
-		if (data && data.hasOwnProperty('message')) {
-			const chatText = $("#chatview").val()
-			$("#chatview").val(`${chatText}\n${data['message']}`);
-			var $textarea = $('#chatview');
-			$textarea.scrollTop($textarea[0].scrollHeight);
-		}
-	});
-</script>
-
 <style>
 	.avatar {
 		vertical-align: middle;
@@ -35,7 +14,6 @@
 		border-radius: 50%;
 	}
 </style>
-
 <body>
 	<div class="container" style="margin-top: 20px">
 		<div class="row">
@@ -81,7 +59,6 @@
 			</form>
 		</div>
 	</div>
-
 	<!-- Menu modal -->
 	<div class="modal fade" id="menuModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
 		aria-hidden="true">
@@ -109,70 +86,6 @@
 			</div>
 		</div>
 	</div>
-
-
 </body>
-
-<script>
-
-	var textarea = document.getElementById('chatview');
-	textarea.scrollTop = textarea.scrollHeight;
-	// press enter to submit the message
-	$("#message").keypress(function (e) {
-		var key = e.which;
-		if (key == 13) {
-			$("#btn-send").click();
-			return false;
-		}
-	});
-
-</script>
-
-
-<script>
-	// submit a new message
-	function submitMessage() {
-		const message = document.getElementById("message").value;
-		if (message) {
-			$("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-			socket.emit('messageHandler', {
-				message,
-				chatId: '{{ chatid }}'
-			}, () => {
-				$("#btn-send").html('SEND');
-				$("#message").val('');			
-			});
-		}
-	}
-</script>
-
-<script>
-	var button = document.querySelector('#emoji-btn');
-	var picker = new EmojiButton({
-		position: 'top',
-		showPreview: false
-	});
-
-	picker.on('emoji', emoji => {
-		document.querySelector('#message').value += emoji;
-		$('#message').focus();
-	});
-
-	button.addEventListener('click', () => {
-		if (picker.pickerVisible) { 
-			picker.hidePicker();	
-		} else { 
-			picker.showPicker(button)
-		};
-
-	});
-
-	$('#message').keydown(function (e) {
-		if (e.ctrlKey && e.keyCode == 13) {
-			picker.pickerVisible ? picker.hidePicker() : picker.showPicker(button);
-		}
-	});
-
-</script>
-
+<script src="/static/js/socket-service.js"></script>
 {% endblock %}
