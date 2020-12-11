@@ -20,7 +20,7 @@ socket.on(chatId, (data) => {
             const messageOut = `
             <div class="message message-out">
                 <span class="messsage-text">
-                    ${data.message}
+                    ${decodeURIComponent(data.message)}
                 </span>
             </div>
             `;
@@ -32,7 +32,7 @@ socket.on(chatId, (data) => {
                     ${data.email}
                 </span> <br>
                 <span class="messsage-text">
-                    ${data.message}
+                    ${decodeURIComponent(data.message)}
                 </span>
             </div>
             `;
@@ -65,7 +65,7 @@ function submitMessage() {
     if (message) {
         $("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         socket.emit('messageHandler', {
-            message,
+            message: encodeURI(message),
             chatId,
         }, () => {
             $("#btn-send").html('SEND');

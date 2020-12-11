@@ -1,5 +1,5 @@
 # imports for flask
-from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify
+from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify, escape
 
 # imports for firebase
 from firebase_admin import credentials, firestore, auth
@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 import os
 import uuid
 from random_username.generate import generate_username
+from urllib.parse import unquote, quote
 load_dotenv()
 
 __location__ = os.path.realpath(
@@ -225,9 +226,9 @@ def handle_message(transfer_obj):
     if ("session_id" in session):
         try:
             decoded_clamis = auth.verify_session_cookie(session["session_id"])   
-            email = decoded_clamis['email']
-            chat_id = transfer_obj.get("chatId")
-            message = transfer_obj.get("message")
+            email = escape(decoded_clamis['email'])
+            chat_id = escape(transfer_obj.get("chatId"))
+            message = quote(escape(unquote(transfer_obj.get("message"))))
             socketio.emit(chat_id, {
                 "message": message,
                 "email": email,
