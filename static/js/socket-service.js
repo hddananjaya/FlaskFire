@@ -62,7 +62,7 @@ $("#message").keypress(function (e) {
 // submit a new message
 function submitMessage() {
     const message = document.getElementById("message").value;
-    if (message) {
+    if (message && message.trim()) {
         $("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
         socket.emit('messageHandler', {
             message: encodeURI(message),
