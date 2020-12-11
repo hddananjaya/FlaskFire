@@ -46,12 +46,10 @@
 		<div class="row" style="margin-top:10px">
 			<div class="input-group mb-3">
 				<div class="input-group-prepend">
-					<span class="input-group-text" title="{{ logged_user }}">[ {{ logged_user.split("@")[0] }} ]
-						:</span>
+					<button id="emoji-btn" class="btn btn-outline-secondary" disabled type="button">😎</button>
 				</div>
 				<input type="text" id="message" class="form-control" autofocus placeholder="Type your message">
 				<div class="input-group-append">
-					<button id="emoji-btn" class="btn btn-outline-secondary" disabled type="button">😎</button>
 					<button id="btn-send" type="button" onclick="submitMessage()" type="submit"
 						class="btn btn-primary btn-block">
 						SEND
