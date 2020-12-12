@@ -12,6 +12,17 @@ document.addEventListener("visibilitychange", function() {
     }
 });
 
+const bbParser = (text) => {
+    const imgRe = /^\[img\](?<imgData>[/;,=+A-Za-z0-9:]*)\[\/img\]$/;
+    const image = text.match(imgRe);
+    if (image) {
+        const imageTag = `<img class="img-msg" src="${image.groups.imgData}">`;
+        return imageTag;
+    } else {
+        return text;
+    }
+}
+
 var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
 socket.on(chatId, (data) => {
     if (data && data.hasOwnProperty('message')) {
@@ -20,7 +31,7 @@ socket.on(chatId, (data) => {
             const messageOut = `
             <div class="message message-out">
                 <span class="messsage-text">
-                    ${decodeURIComponent(data.message)}
+                    ${bbParser(decodeURIComponent(data.message))}
                 </span>
             </div>
             `;
@@ -32,7 +43,7 @@ socket.on(chatId, (data) => {
                     ${data.email}
                 </span> <br>
                 <span class="messsage-text">
-                    ${decodeURIComponent(data.message)}
+                    ${bbParser(decodeURIComponent(data.message))}
                 </span>
             </div>
             `;
@@ -64,16 +75,23 @@ function submitMessage() {
     const message = document.getElementById("message").value;
     if (message && message.trim()) {
         $("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-        socket.emit('messageHandler', {
-            message: encodeURI(message),
-            chatId,
-        }, () => {
+        emitMessage(message, () => {
             $("#btn-send").html('SEND');
-            $("#message").val('');			
-        });
+            $("#message").val('');		
+        })
     }
 }
 
+const emitMessage = (message, callback) => {
+    socket.emit('messageHandler', {
+        message: encodeURI(message),
+        chatId,
+    }, () => {
+        if (callback) {
+            callback();
+        }
+    });
+}
 
 var button = document.querySelector('#emoji-btn');
 var picker = new EmojiButton({
@@ -98,5 +116,26 @@ button.addEventListener('click', () => {
 $('#message').keydown(function (e) {
     if (e.ctrlKey && e.keyCode == 13) {
         picker.pickerVisible ? picker.hidePicker() : picker.showPicker(button);
+    }
+});
+
+const imageInput = $("#image-input"); 
+const userControls = $("#user-controls :input");
+uploadFile = () => {
+    imageInput.click();
+}
+
+$('#image-input').on('change', () => {
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+    const data = fileReader.result;
+    userControls.attr("disabled", true);;
+    emitMessage(`[img]${data}[/img]`, () => {
+        userControls.attr("disabled", false);
+    })
+    };
+    if (imageInput.prop('files').length > 0) {
+        const file = imageInput.prop('files')[0];
+        fileReader.readAsDataURL(file);
     }
 });

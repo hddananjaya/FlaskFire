@@ -43,10 +43,14 @@
 		<hr>
 		<div class="row chat-view" id="chat">
 		</div>
-		<div class="row" style="margin-top:10px">
+		<div class="row" style="margin-top:10px" id="user-controls">
 			<div class="input-group mb-3">
 				<div class="input-group-prepend">
 					<button id="emoji-btn" class="btn btn-outline-secondary" type="button">😎</button>
+					<input id="image-input" accept="image/png, image/jpeg, image/gif" type="file" style="display:none;"></input>
+					<button class="btn btn-outline-secondary" type="button" onclick="uploadFile()">
+						<i class="fa fa-picture-o" aria-hidden="true"></i>
+					</button>
 				</div>
 				<input type="text" id="message" class="form-control" autofocus placeholder="Type your message">
 				<div class="input-group-append">
