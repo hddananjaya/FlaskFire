@@ -3,6 +3,6 @@ WEB_API_KEY
 .*.swp
 /.vscode
 /env
-/__pycache__
+**/__pycache__/*
 .fuse_*
 .env

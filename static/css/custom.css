@@ -133,5 +133,12 @@ html {
 }
 
 .img-msg {
-    max-width: 200px;
+    max-width: 400px;
+}
+
+.message-keyevents {
+    background-color: #e1e1e1;
+    margin-right: auto;
+    font-size: 13px;
+    font-style: italic;
 }

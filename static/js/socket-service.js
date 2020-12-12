@@ -1,5 +1,9 @@
 let protocol;
 let unreadMsgCount = 0;
+const chat = $("#chat");
+const imageInput = $("#image-input"); 
+const userControls = $("#user-controls :input");
+
 if (location.hostname.includes('localhost')) {
     protocol = 'http://'
 } else {
@@ -23,9 +27,34 @@ const bbParser = (text) => {
     }
 }
 
-var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
-socket.on(chatId, (data) => {
+var socket = io.connect(`${protocol}${location.hostname}:${location.port}`);
+
+setInterval(() => {
+    $(".keyevents").remove();
+}, 2000);
+
+socket.on(`${chatId}.NOTIFICATION`, (notification) => {
+    if (!notification || !notification.hasOwnProperty('type')) {
+        return;
+    }
+    if (email === notification.email) {
+        return;
+    }
+    const events = `
+    <div class="message message-keyevents keyevents">
+        <span class="messsage-text">
+            ${notification.email} is typing...
+        </span>
+    </div>
+    `;
+    $(".keyevents").remove();
+    chat.append(events)
+    chat.scrollTop(chat.prop("scrollHeight"));
+})
+
+socket.on(`${chatId}.MESSAGE`, (data) => {
     if (data && data.hasOwnProperty('message')) {
+        $(".keyevents").remove();
         let message;
         if (email === data.email) {
             const messageOut = `
@@ -49,20 +78,20 @@ socket.on(chatId, (data) => {
             `;
             message = messageIn;
         }
-        const chat = $("#chat");
-        chat.append(message).hide().show('slow');
+        chat.append(message);
         chat.scrollTop(chat.prop("scrollHeight"));
         if (document.hidden) {
             setTimeout(() => {
                 playAlert("pop");
             }, 10);
-            document.title = `(${++unreadMsgCount}) Hexora`;
+            document.title = `(${++unreadMsgCount}) Hexora Web`;
         }
     }
 });
 
 // press enter to submit the message
 $("#message").keypress(function (e) {
+    emitNotification("KEYPRESS");
     var key = e.which;
     if (key == 13) {
         $("#btn-send").click();
@@ -82,8 +111,19 @@ function submitMessage() {
     }
 }
 
+const emitNotification = (type, callback) => {
+    socket.emit('notificationGateway', {
+        chatId,
+        type,
+    }, () => {
+        if (callback) {
+            callback();
+        }
+    });
+}
+
 const emitMessage = (message, callback) => {
-    socket.emit('messageHandler', {
+    socket.emit('messageGateway', {
         message: encodeURI(message),
         chatId,
     }, () => {
@@ -119,8 +159,7 @@ $('#message').keydown(function (e) {
     }
 });
 
-const imageInput = $("#image-input"); 
-const userControls = $("#user-controls :input");
+
 uploadFile = () => {
     imageInput.click();
 }

@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, url_for, redirect, flash, ses
 # imports for firebase
 from firebase_admin import credentials, firestore, auth
 import firebase_admin
+import constants
 
 # custom lib
 import firebase_user_auth
@@ -20,6 +21,7 @@ import os
 import uuid
 from random_username.generate import generate_username
 from urllib.parse import unquote, quote
+from constants import appevents
 load_dotenv()
 
 __location__ = os.path.realpath(
@@ -221,7 +223,7 @@ def leave_chat(chatid):
     except Exception as e:
         return (str(e))
 
-@socketio.on('messageHandler')
+@socketio.on('messageGateway')
 def handle_message(transfer_obj):
     if ("session_id" in session):
         try:
@@ -229,12 +231,26 @@ def handle_message(transfer_obj):
             email = escape(decoded_clamis['email'])
             chat_id = escape(transfer_obj.get("chatId"))
             message = quote(escape(unquote(transfer_obj.get("message"))))
-            socketio.emit(chat_id, {
+            socketio.emit('{}.{}'.format(chat_id, appevents.HexoraEvents.MESSAGE.value), {
                 "message": message,
                 "email": email,
             })
         except:
             pass
+@socketio.on('notificationGateway')
+def handle_notification(transfer_obj):
+    if ("session_id" in session):
+        try:
+            decoded_clamis = auth.verify_session_cookie(session["session_id"])   
+            email = escape(decoded_clamis['email'])
+            chat_id = escape(transfer_obj.get("chatId"))
+            socketio.emit('{}.{}'.format(chat_id, appevents.HexoraEvents.NOTIFCATION.value), {
+                "type": appevents.NotificationType.KEYPRESS.value,
+                "email": email,
+            })
+        except:
+            pass
+
 if (__name__ == "__main__"):
 	socketio.run(app, debug=bool(os.getenv("DEBUG")), host='0.0.0.0', port=8080)
 
