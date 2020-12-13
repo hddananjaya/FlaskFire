@@ -1,9 +1,10 @@
 # imports for flask
-from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify
+from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify, escape
 
 # imports for firebase
 from firebase_admin import credentials, firestore, auth
 import firebase_admin
+import constants
 
 # custom lib
 import firebase_user_auth
@@ -19,6 +20,8 @@ from dotenv import load_dotenv
 import os
 import uuid
 from random_username.generate import generate_username
+from urllib.parse import unquote, quote
+from constants import appevents
 load_dotenv()
 
 __location__ = os.path.realpath(
@@ -41,14 +44,6 @@ chats_coll = db.collection(u"notes")
 
 # firebase user auth init
 user_auth = firebase_user_auth.initialize(os.getenv("WEB_API_KEY"))
-
-# keeping already watching list
-chats_watch_list = {}
-
-def _on_snapshot_callback(doc_snapshot, changes, readtime):
-    # need to send requried event to required people
-    chatid = doc_snapshot[0].id
-    socketio.emit(chatid, {'doc_updated': True})
 
 @app.route('/')
 def index_page():
@@ -170,12 +165,6 @@ def user_chat(chatid):
             user_details = user_doc.get().to_dict()
             user_details.get("connected_chats").append(chat_doc)
             user_doc.update(user_details, option=None)
-
-
-        # start checking for changes. 
-        if (chatid not in chats_watch_list):
-            chat_watch = chat_doc.on_snapshot(_on_snapshot_callback)
-
         return (render_template("chat.html", users_list=chat_details.get("users"), logged_user=session["email_addr"], chatid=chatid))
     except:
         return (redirect(url_for('user_login')))
@@ -184,7 +173,7 @@ def user_chat(chatid):
 def new_chat():
     return (render_template("new-note.html"))
 
-@app.route("/new-chat/create")
+@app.route("/chat/create")
 def create_new_chat():
     try:
         id = str(uuid.uuid4())
@@ -204,7 +193,6 @@ def create_new_chat():
 @app.route("/chat/getinfo/<chatid>")
 def get_chat_info(chatid):
     cht_info = chats_coll.document(chatid)
-    session[chatid] = False	
     return (jsonify(cht_info.get().to_dict()))
 
 
@@ -234,6 +222,35 @@ def leave_chat(chatid):
         return redirect(url_for("index_page"))   
     except Exception as e:
         return (str(e))
+
+@socketio.on('messageGateway')
+def handle_message(transfer_obj):
+    if ("session_id" in session):
+        try:
+            decoded_clamis = auth.verify_session_cookie(session["session_id"])   
+            email = escape(decoded_clamis['email'])
+            chat_id = escape(transfer_obj.get("chatId"))
+            message = quote(escape(unquote(transfer_obj.get("message"))))
+            socketio.emit('{}.{}'.format(chat_id, appevents.HexoraEvents.MESSAGE.value), {
+                "message": message,
+                "email": email,
+            })
+        except:
+            pass
+@socketio.on('notificationGateway')
+def handle_notification(transfer_obj):
+    if ("session_id" in session):
+        try:
+            decoded_clamis = auth.verify_session_cookie(session["session_id"])   
+            email = escape(decoded_clamis['email'])
+            chat_id = escape(transfer_obj.get("chatId"))
+            notification_type = escape(transfer_obj.get("type"))
+            socketio.emit('{}.{}'.format(chat_id, appevents.HexoraEvents.NOTIFCATION.value), {
+                "type": notification_type,
+                "email": email,
+            })
+        except:
+            pass
 
 if (__name__ == "__main__"):
 	socketio.run(app, debug=bool(os.getenv("DEBUG")), host='0.0.0.0', port=8080)

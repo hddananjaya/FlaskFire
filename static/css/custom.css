@@ -1,3 +1,7 @@
+html {
+	scroll-behavior: smooth;
+}
+
 .emoji-picker{
 	margin:10px
 }
@@ -39,7 +43,7 @@
 	font-weight: bold;
 }
 
-* {
+.no-user {
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
@@ -60,10 +64,87 @@
 	}
 }
 
+/* 
+	scrollbar 
+*/
+/* width */
+::-webkit-scrollbar {
+	width: 5px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+	background: #f1f1f1; 
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: #888; 
+}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: #555; 
+}
+
 .room-avatar {
     width: 52px;
 }
 
 .room-btns {
     margin-left: auto;
+}
+
+.chat-view  {
+	height:70%;
+    display: flex;
+	flex-direction: column;
+	display: list-item;
+	overflow: auto;
+	padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 0.25rem;
+}
+
+.message {
+    padding: 10px;
+    margin: 5px 0px 5px 0px;
+    border-radius: 6px;
+    width: fit-content;
+	max-width: 450px;
+	overflow: auto;
+}
+
+.message-in {
+	background-color: antiquewhite;
+	margin-right: auto;
+}
+
+.message-out {
+	background-color: aquamarine;
+    margin-left: auto;
+}
+
+.message-out .message-sender{
+	visibility: hidden;
+}
+
+.message-sender {
+	font-weight: bold;
+}
+
+.img-msg {
+    max-width: 400px;
+}
+
+.message-eventKeypress {
+    background-color: #e1e1e1;
+    margin-right: auto;
+    font-size: 13px;
+    font-style: italic;
+}
+.message-eventJoin {
+    background-color: #e1e1e1;
+    margin-right: auto;
+    font-size: 13px;
+    font-style: italic;
 }

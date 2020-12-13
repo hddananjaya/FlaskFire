@@ -1,12 +1,9 @@
 {% extends "header.html" %}
 {% block content %}
 <script>
-  /*
-   Create a new chat  
-  */
-  function create_new_note() {
+  function creatNewChat() {
     $("#btn-create-new-chat").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating ...');
-    fetch("/new-chat/create")
+    fetch("/chat/create")
       .then((data) => {
         console.log(data);
         $("#btn-create-new-chat").html("Created!");
@@ -50,7 +47,7 @@
       {% endif %}
       {% endwith %}
       <div class="col-lg text-center">
-        <button id="btn-create-new-chat" type="button" onclick="create_new_note()" class="btn btn-success  btn-block">
+        <button id="btn-create-new-chat" type="button" onclick="creatNewChat()" class="btn btn-success  btn-block">
           <i class="fa fa-plus" aria-hidden="true"></i> &nbsp; New Chat Room
         </button>
       </div>
@@ -58,39 +55,43 @@
     <div class="col-lg text-center">
     </div>
   </div>
-
   <div class="row" style="margin-top:40px">
     <div class="col-lg-3"></div>
       <div class="col-lg-6">
-      {% for chat in chats_list %}
-        <div class="card" style="margin-bottom: 20px;">
-          <div class="card-header">
-            <div class="card-header-content">
-                <img class="room-avatar" src="http://tinygraphs.com/labs/isogrids/hexa/{{chat.get('nid')}}?theme=heatwave&numcolors=4&size=220&fmt=svg">
-                <div class="chat-name ml-3">
-                  {{ chat.get("name") }}
+        {% if chats_list is defined and chats_list[0] is defined %}
+          {% for chat in chats_list %}
+            <div class="card" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <div class="card-header-content">
+                    <img class="room-avatar" src="https://www.tinygraphs.com/labs/isogrids/hexa/{{chat.get('nid')}}?theme=heatwave&numcolors=4&size=220&fmt=svg">
+                    <div class="chat-name ml-3">
+                      {{ chat.get("name") }}
+                    </div>
+                    <div class="room-btns">
+                      <a href="/chat/{{ chat.get('nid') }}" class="btn btn-primary btn-sm">Open</a> 
+                      <a href="/chat/leave/{{ chat.get('nid') }}" class="btn btn-outline-dark btn-sm">Leave</a>
+                    </div>
                 </div>
-                <div class="room-btns">
-                  <a href="/chat/{{ chat.get('nid') }}" class="btn btn-primary btn-sm">Open</a> 
-                  <a href="/chat/leave/{{ chat.get('nid') }}" class="btn btn-outline-dark btn-sm">Leave</a>
-                </div>
+    
+              </div>
+              <div class="card-body">
+                <p class="card-title">Members :</p>
+                {% for user in chat.get("users") %}
+                  <span class="badge badge-pill badge-secondary">{{ user }}</span>
+                {% endfor %}
+              </div>
             </div>
-
-          </div>
-          <div class="card-body">
-            <p class="card-title">Members :</p>
-            {% for user in chat.get("users") %}
-              <span class="badge badge-pill badge-secondary">{{ user }}</span>
             {% endfor %}
-          </div>
-        </div>
-        {% endfor %}
+        {% else %}
+          <div class="text-center alert alert-info alert-dismissible fade show" role="alert">
+            Go ahead and create your first Chat Room! Share URL with others to join.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>  
+      {% endif %}        
     </div>
-
     <div class="col-lg-3"></div>
-
   </div>
-
-
 </div>
 {% endblock %}

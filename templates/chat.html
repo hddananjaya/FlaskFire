@@ -5,65 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/emoji-button@2.2.2/dist/index.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"></script>
-
-
-
-<script>
-
-	// notification service
-	var is_notify = false;
-	var notification_count = 0;
-	if (("Notification" in window) && Notification.permission !== "denied") {
-		Notification.requestPermission().then(function (permission) {
-			if (permission === "granted") {
-				//var notification = new Notification("Hi there!");
-				is_notify = true;
-			}
-		});
-	}
-
-	var protocol;
-	if (location.hostname.includes('localhost')) {
-		protocol = 'http://'
-	} else {
-		protocol = 'https://'
-	}
-	var socket = io.connect(`${protocol}${location.hostname}:${location.port}`)
-
-	// listen on chatid
-	// fetch from the database when there is a change
-	socket.on('{{ chatid }}', (data) => {
-		fetch("/chat/getinfo/{{ chatid }}")
-			.then((data) => {
-				data.json().then((data) => {
-					console.log(data);
-					if (data !== null) {
-						//console.log(data["chat"]);
-						$("#chatview").val(data["chat"]);
-						var $textarea = $('#chatview');
-						$textarea.scrollTop($textarea[0].scrollHeight);
-
-						// send norification if document is not focused
-						// notification_count has implemented to notify one notification
-						// at a time. because this socketio event might be triggered several times for an one message
-						if (!document.hasFocus() && is_notify && notification_count === 0) {
-							var notification = new Notification("InstChat New Message");
-							notification_count++;
-							setTimeout(function () { notification.close() }, 600);
-							notification.onclose = function () { notification_count-- };
-						}
-					}
-				});
-			},
-				(error) => {
-					console.log(error);
-				});
-	});
-
-
-</script>
-
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"></script> -->
 <style>
 	.avatar {
 		vertical-align: middle;
@@ -72,7 +14,11 @@
 		border-radius: 50%;
 	}
 </style>
-
+<script>
+	// page store
+	var chatId = '{{ chatid }}'
+	var email = '{{ logged_user }}'
+</script>
 <body>
 	<div class="container" style="margin-top: 20px">
 		<div class="row">
@@ -95,20 +41,19 @@
 			<hr>
 		</div>
 		<hr>
-		<div class="row" style="height:70%">
-			<textarea id="chatview" class="chat-textarea" readonly>
-		</textarea>
+		<div class="row chat-view" id="chat">
 		</div>
-
-		<div class="row" style="margin-top:10px">
+		<div class="row" style="margin-top:10px" id="user-controls">
 			<div class="input-group mb-3">
 				<div class="input-group-prepend">
-					<span class="input-group-text" title="{{ logged_user }}">[ {{ logged_user.split("@")[0] }} ]
-						:</span>
+					<button id="emoji-btn" class="btn btn-outline-secondary" type="button">😎</button>
+					<input id="image-input" accept="image/png, image/jpeg, image/gif" type="file" style="display:none;"></input>
+					<button class="btn btn-outline-secondary" type="button" onclick="uploadFile()">
+						<i class="fa fa-picture-o" aria-hidden="true"></i>
+					</button>
 				</div>
 				<input type="text" id="message" class="form-control" autofocus placeholder="Type your message">
 				<div class="input-group-append">
-					<button id="emoji-btn" class="btn btn-outline-secondary" type="button">😎</button>
 					<button id="btn-send" type="button" onclick="submitMessage()" type="submit"
 						class="btn btn-primary btn-block">
 						SEND
@@ -118,7 +63,6 @@
 			</form>
 		</div>
 	</div>
-
 	<!-- Menu modal -->
 	<div class="modal fade" id="menuModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
 		aria-hidden="true">
@@ -146,71 +90,6 @@
 			</div>
 		</div>
 	</div>
-
-
 </body>
-
-<script>
-
-	var textarea = document.getElementById('chatview');
-	textarea.scrollTop = textarea.scrollHeight;
-	// press enter to submit the message
-	$("#message").keypress(function (e) {
-		var key = e.which;
-		if (key == 13) {
-			$("#btn-send").click();
-			return false;
-		}
-	});
-
-</script>
-
-
-<script>
-	// submit a new message
-	function submitMessage() {
-		$("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-		var message = document.getElementById("message").value;
-		axios.post('/chat/add/{{ chatid }}', {
-    		message,
-  		})
-		.then(function (response) {
-			$("#btn-send").html('SEND');
-			$("#message").val('');
-		})
-		.catch(function (error) {
-			console.log(error);
-		});
-	}
-</script>
-
-<script>
-	var button = document.querySelector('#emoji-btn');
-	var picker = new EmojiButton({
-		position: 'top',
-		showPreview: false
-	});
-
-	picker.on('emoji', emoji => {
-		document.querySelector('#message').value += emoji;
-		$('#message').focus();
-	});
-
-	button.addEventListener('click', () => {
-		if (picker.pickerVisible) { 
-			picker.hidePicker();	
-		} else { 
-			picker.showPicker(button)
-		};
-
-	});
-
-	$('#message').keydown(function (e) {
-		if (e.ctrlKey && e.keyCode == 13) {
-			picker.pickerVisible ? picker.hidePicker() : picker.showPicker(button);
-		}
-	});
-
-</script>
-
+<script src="/static/js/pages/chat.page.js" type="module"></script>
 {% endblock %}
