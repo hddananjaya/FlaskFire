@@ -136,7 +136,13 @@ html {
     max-width: 400px;
 }
 
-.message-keyevents {
+.message-eventKeypress {
+    background-color: #e1e1e1;
+    margin-right: auto;
+    font-size: 13px;
+    font-style: italic;
+}
+.message-eventJoin {
     background-color: #e1e1e1;
     margin-right: auto;
     font-size: 13px;

@@ -6,3 +6,5 @@ class HexoraEvents(Enum):
 
 class NotificationType(Enum):
     KEYPRESS = "KEYPRESS"
+    JOIN = "JOIN"
+    EXIT = "EXIT"

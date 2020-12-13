@@ -244,8 +244,9 @@ def handle_notification(transfer_obj):
             decoded_clamis = auth.verify_session_cookie(session["session_id"])   
             email = escape(decoded_clamis['email'])
             chat_id = escape(transfer_obj.get("chatId"))
+            notification_type = escape(transfer_obj.get("type"))
             socketio.emit('{}.{}'.format(chat_id, appevents.HexoraEvents.NOTIFCATION.value), {
-                "type": appevents.NotificationType.KEYPRESS.value,
+                "type": notification_type,
                 "email": email,
             })
         except:
