@@ -62,9 +62,7 @@ def index_page():
             user_details = user_doc.get().to_dict()
             connected_chats = user_details.get("connected_chats")
             #flash(decoded_clamis)
-            connected_chats_list = []
-            for i in connected_chats:
-                connected_chats_list.append(i.get().to_dict())
+            connected_chats_list = [i.get().to_dict() for i in connected_chats]
             return render_template("index.html", user_name=user_details.get('name'), chats_list=connected_chats_list[::-1])
         except Exception as e:
             # if unable to verify session_id for any reason
