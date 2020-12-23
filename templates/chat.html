@@ -5,6 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/emoji-button@2.2.2/dist/index.min.js"></script>
+<link rel="stylesheet" href="/static/css/chat.page.css">
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"></script> -->
 <style>
 	.avatar {
@@ -20,7 +21,43 @@
 	var email = '{{ logged_user }}'
 </script>
 <body>
-	<div class="container" style="margin-top: 20px">
+
+	<div class="container chat-container">
+		<div class="row">
+			<div class="col-md-12 m-0 p-0">
+				<div class="chat-wrapper" id="chatWrapper"> 
+					<div class="row chat-view" id="chat"> </div>
+				</div>
+			</div>
+		</div>
+		<div class="row chat-row" id="user-controls">
+			<div class="col-md-12 m-0 p-0">
+				<div class="input-group m-0">
+					<div class="input-group-prepend">
+						<button id="emoji-btn" class="btn btn-outline-secondary emoji-btn" type="button">😎</button>
+						<input id="image-input" accept="image/png, image/jpeg, image/gif" type="file" style="display:none;"></input>
+						<button class="btn btn-outline-secondary" type="button" onclick="uploadFile()">
+							🖼️
+						</button>
+					</div>
+					<input type="text" id="message" class="form-control" autofocus placeholder="type your message">
+					<div class="input-group-append">
+						<button id="btn-send" type="button" onclick="submitMessage()" type="submit"
+							class="btn btn-primary btn-block send-btn">
+							<i class="fa fa-paper-plane" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+
+	<!-- <div class="container" style="margin-top: 20px">
 		<div class="row">
 			<div class="col-lg-1">
 				<button onclick="window.location='/'" type="button" type="submit" class="btn btn-secondary btn-block">
@@ -62,7 +99,7 @@
 			</div>
 			</form>
 		</div>
-	</div>
+	</div> -->
 	<!-- Menu modal -->
 	<div class="modal fade" id="menuModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
 		aria-hidden="true">

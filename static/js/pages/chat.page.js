@@ -23,7 +23,7 @@ window.submitMessage = () => {
   if (message && message.trim()) {
     $("#btn-send").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
     chatService.emitMessage(message, () => {
-      $("#btn-send").html('SEND');
+      $("#btn-send").html(`<i class="fa fa-paper-plane" aria-hidden="true"></i>`);
       $("#message").val('');
     })
   }
@@ -162,4 +162,15 @@ chatService.getMessages((message) => {
     }, 10);
     document.title = `(${++unreadMsgCount}) Hexora Web`;
   }
-})
+});
+
+$(window).resize(function() {
+  setChatViewHeight();
+});
+const setChatViewHeight = () => {
+  if (window.innerHeight < 900) {
+    $('#chatWrapper').css('cssText', `height:${window.innerHeight - 38}px !important;`);
+  } else {
+    $('#chatWrapper').css('cssText', `height:819px !important;`);
+  }
+}
