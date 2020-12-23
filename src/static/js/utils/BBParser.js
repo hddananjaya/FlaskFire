@@ -12,6 +12,17 @@ class BBParser {
       const imageTag = `<img class="img-msg" src="${image.groups.imgData}">`;
       return imageTag;
     } else if (url) {
+      const link = url["0"];
+      const youtubeUrlIdentifier = "https://www.youtube.com/watch?v=";
+      if (link.includes(youtubeUrlIdentifier)) {
+        const youtubeId = link.split(youtubeUrlIdentifier)["1"];
+        if (youtubeId !== "") {
+          return `
+            <iframe width="420" height="345" src="https://www.youtube.com/embed/${youtubeId}">
+            </iframe>
+          `;
+        } 
+      }
       return `<a target="_blank" href="${ url["0"] }">${ url["0"] }</a>`;
     } else if (!exceptEmojis) {
       return `<span style="font-size:30px"> ${ text } </span>`;
